@@ -16,6 +16,10 @@ class App extends Component {
     searchInput: '',
   }
 
+  onChangeInput = event => {
+    this.setState({searchInput: event.target.value})
+  }
+
   addBtn = event => {
     event.preventDefault()
     const {website, name, password, passwordList} = this.state
@@ -28,12 +32,10 @@ class App extends Component {
 
     this.setState(prevState => ({
       passwordList: [...prevState.passwordList, newPasswordList],
-      website: '',
-      name: '',
-      password: '',
       count: passwordList.length,
       isTicked: false,
     }))
+    this.setState({website: '', name: '', password: ''})
   }
 
   onChangeWeb = event => {
@@ -48,29 +50,40 @@ class App extends Component {
     this.setState({password: event.target.value})
   }
 
-  onChangeInput = event => {
-    this.setState({searchInput: event.target.value})
-  }
-
   onClickBtn = () => {
     this.setState(prevState => ({isTicked: !prevState.isTicked}))
   }
 
-  renderPasswordHistory = () => {
+  onDelete = id => {
     const {passwordList} = this.state
+    const filteredList = passwordList.filter(eachPass => eachPass.id !== id)
+    this.setState({passwordList: filteredList})
+  }
+
+  renderPasswordHistory = () => {
+    const {searchInput, passwordList} = this.state
+    const searchList = passwordList.filter(eachPass =>
+      eachPass.website.toLowerCase().includes(searchInput.toLowerCase()),
+    )
     return (
       <div>
         <ul>
-          {passwordList.map(eachPass => (
-            <li>
+          {searchList.map(eachPass => (
+            <li key={eachPass.id} className="list-items-container">
               <h1>{eachPass.name[0]}</h1>
               <p>{eachPass.website}</p>
               <p>{eachPass.name}</p>
               <p>{eachPass.password}</p>
-              <button type="button" onClick={this.onDelete}>
+              <button
+                type="button"
+                onClick={this.onDelete}
+                className="check-btn"
+                testid="delete"
+              >
                 <img
                   src="https://assets.ccbp.in/frontend/react-js/password-manager-delete-img.png"
                   alt="delete"
+                  className="delete-btn"
                 />
               </button>
             </li>
@@ -81,23 +94,35 @@ class App extends Component {
   }
 
   renderMaskPasswordHistory = () => {
-    const {passwordList} = this.state
+    const {searchInput, passwordList} = this.state
+    const searchList = passwordList.filter(eachPass =>
+      eachPass.website.toLowerCase().includes(searchInput.toLowerCase()),
+    )
     return (
       <div>
         <ul>
-          {passwordList.map(eachPass => (
-            <li>
+          {searchList.map(eachPass => (
+            <li key={eachPass.id} className="list-items-container">
               <h1>{eachPass.name[0]}</h1>
-              <p>{eachPass.website}</p>
-              <p>{eachPass.name}</p>
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/password-manager-stars-img.png"
-                alt="stars"
-              />
-              <button type="button" onClick={this.onDelete}>
+              <div className="list-card">
+                <p>{eachPass.website}</p>
+                <p>{eachPass.name}</p>
+                <img
+                  src="https://assets.ccbp.in/frontend/react-js/password-manager-stars-img.png"
+                  alt="stars"
+                  className="stars"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={this.onDelete}
+                className="check-btn"
+                testid="delete"
+              >
                 <img
                   src="https://assets.ccbp.in/frontend/react-js/password-manager-delete-img.png"
                   alt="delete"
+                  className="delete-btn"
                 />
               </button>
             </li>
@@ -112,8 +137,8 @@ class App extends Component {
     return (
       <div>
         {isTicked
-          ? this.renderMaskPasswordHistory()
-          : this.renderPasswordHistory()}
+          ? this.renderPasswordHistory()
+          : this.renderMaskPasswordHistory()}
       </div>
     )
   }
@@ -127,7 +152,7 @@ class App extends Component {
           alt="no passwords"
           className="sm-image"
         />
-        <h1>No Passwords</h1>
+        <p className="password-head">No Passwords</p>
       </div>
     )
   }
@@ -135,39 +160,43 @@ class App extends Component {
   renderPasswordList = () => {
     const {count, searchInput} = this.state
     return (
-      <div>
-        <div>
-          <h1>
+      <div className="passwords-list-container">
+        <div className="passwords-heads">
+          <p className="password-head">
             Your Passwords <span>{count}</span>
-          </h1>
-          <div>
+          </p>
+          <div className="logo-card">
             <img
               src="https://assets.ccbp.in/frontend/react-js/password-manager-search-img.png"
               alt="search"
-              className="logo"
+              className="search-logo"
             />
             <input
               type="search"
               onChange={this.onChangeInput}
               value={searchInput}
-              className="input-ele"
+              className="search-input-ele"
             />
           </div>
         </div>
-        <hr />
+        <hr className="style-line" />
         <div>
-          <div>
+          <div className="check-box-card">
             <button
               type="button"
-              className="checkBtn"
+              className="check-btn"
               onClick={this.onClickBtn}
             >
               <input type="checkbox" id="checkId" />
             </button>
-            <label htmlFor="checkId">Show Passwords</label>
+            <label htmlFor="checkId" className="password-head">
+              Show Passwords
+            </label>
           </div>
         </div>
-        <div>{count === 0 ? this.renderEmptyList() : this.renderPassWords}</div>
+        <div>
+          {count === 0 ? this.renderEmptyList() : this.renderPassWords()}
+        </div>
       </div>
     )
   }
@@ -228,7 +257,7 @@ class App extends Component {
                   className="input-ele"
                 />
               </div>
-              <button type="button" onSubmit={this.addBtn} className="add-btn">
+              <button type="button" onClick={this.addBtn} className="add-btn">
                 Add
               </button>
             </form>
